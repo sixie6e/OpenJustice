@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Open Justice Portal</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f0f4f8; padding: 30px; margin: 0; }
+        .container { max-width: 1200px; margin: 0 auto; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 30px; }
+        header { border-bottom: 2px solid #edf2f7; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+        h2 { color: #2b6cb0; margin: 0; }
+        .panel { display: grid; grid-template-columns: 1fr 2fr; gap: 40px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #4a5568; font-size: 14px; }
+        input, select, button { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        button { background: #3182ce; color: #fff; font-weight: bold; border: none; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+        button:hover { background: #2b6cb0; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+        th { background: #f7fafc; color: #4a5568; }
+        .badge { background: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
+        .role-card { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 25px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .role-card:hover { transform: translateY(-5px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: #3182ce; }
+        .role-card h4 { margin: 10px 0 0 0; color: #2d3748; }
+        .nav-bar { display: flex; gap: 15px; align-items: center; }
+        .logout-btn { background: #e53e3e; width: auto; padding: 8px 15px; margin-top: 0; }
+        .logout-btn:hover { background: #c53030; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2>⚖️ Open Justice Portal ⚖️</h2>
+        <div class="nav-bar">
+            <span id="roleBadge" class="badge" style="background:#4a5568; color:white; display:none;"></span>
+            <button id="logoutBtn" class="logout-btn" onclick="logout()" style="display:none;">Exit Portal</button>
+            <div><span class="badge" style="background:#2f855a; color:white;">TLS 1.3 Active</span></div>
+        </div>
+    </header>
+
+    <div id="loginView" class="view-section active">
+        <h3 style="text-align:center; color:#4a5568; margin-top:0;">Select Role</h3>
+        <div class="role-grid">
+            <div class="role-card" onclick="loginAs('Judge')">
+                <div style="font-size: 32px;">♚️</div>
+                <h4>Judge</h4>
+            </div>
+            <div class="role-card" onclick="loginAs('Prosecutor's Office')">
+                <div style="font-size: 32px;">♛</div>
+                <h4>DA</h4>
+            </div>
+            <div class="role-card" onclick="loginAs('Clerk')">
+                <div style="font-size: 32px;">♜</div>
+                <h4>Clerk</h4>
+            </div>
+            <div class="role-card" onclick="loginAs('Defense')">
+                <div style="font-size: 32px;">♝</div>
+                <h4>Defense</h4>
+            </div>
+            <div class="role-card" onclick="loginAs('Law Enforcement')">
+                <div style="font-size: 32px;">♞</div>
+                <h4>Law Enforcement</h4>
+            </div>
+            <div class="role-card" onclick="loginAs('sysadmin')">
+                <div style="font-size: 32px;">⚙</div>
+                <h4>sysadmin</h4>
+            </div>
+        </div>
+    </div>
+
+    <div id="portalView" class="view-section">
+        <div class="panel">
+            <div style="background: #f7fafc; padding: 20px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                
+                <div id="clerkForm" class="role-form" style="display:none;">
+                    <h3 style="margin-top:0; color:#4a5568;">Case Entry</h3>
+                    <div class="form-group">
+                        <label>Docket Number</label>
+                        <input type="text" id="case_id" placeholder="e.g. CR-2026-1102">
+                    </div>
+                    <div class="form-group">
+                        <label>Charge Statute</label>
+                        <select id="charge_statute">
+                            <option value="Title 17-A">Title 17-A</option>
+                            <option value="Title 29-A">Title 29-A</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Charge Class</label>
+                        <select id="charge_class">
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="display:inline-block;"><input type="checkbox" id="is_violent" style="width:auto;"> Violent</label>
+                    </div>
+                    <div class="form-group">
+                        <label>Arraignment Date</label>
+                        <input type="date" id="arraignment_date">
+                    </div>
+                    <button onclick="submitNewCase()">Commit Case</button>
+                </div>
+
+                <div id="judgeForm" class="role-form" style="display:none;">
+                    <h3 style="margin-top:0; color:#2b6cb0;">Chambers Control</h3>
+                    <p style="font-size:13px; color:#4a5568;">Review and authorize dismissal packets.</p>
+                    <button style="background:#ecc94b; color:#744210;" onclick="orderDismissals()">Order Dismissals</button>
+                </div>
+
+                <div id="daForm" class="role-form" style="display:none;">
+                    <h3 style="margin-top:0; color:#c53030;">Prosecution Index</h3>
+                    <div class="form-group">
+                        <label>Target Docket</label>
+                        <input type="text" id="da_case_id" placeholder="CR-2026-XXXX">
+                    </div>
+                    <div class="form-group">
+                        <label>Filing Title</label>
+                        <input type="text" id="da_title" placeholder="State Motion to Compel">
+                    </div>
+                    <div class="form-group">
+                        <label>Document x</label>
+                        <input type="file" id="da_file">
+                    </div>
+                    <button style="background:#c53030;" onclick="submitFiling('DA')">Submit Prosecutorial E-Filing</button>
+                </div>
+
+                <div id="defenseForm" class="role-form" style="display:none;">
+                    <h3 style="margin-top:0; color:#2f855a;">Defense Ledger</h3>
+                    <div class="form-group">
+                        <label>Target Docket</label>
+                        <input type="text" id="def_case_id" placeholder="CR-2026-XXXX">
+                    </div>
+                    <div class="form-group">
+                        <label>Filing Title</label>
+                        <input type="text" id="def_title" placeholder="Motion to Dismiss">
+                    </div>
+                    <div class="form-group">
+                        <label>Document x</label>
+                        <input type="file" id="def_file">
+                    </div>
+                    <button style="background:#2f855a;" onclick="submitFiling('Defense')">Submit Defense E-Filing</button>
+                </div>
+
+                <div id="policeForm" class="role-form" style="display:none;">
+                    <h3 style="margin-top:0; color:#4a5568;">Law Enforcement Interface</h3>
+                    <p style="font-size:13px; color:#e53e3e; font-weight:bold; border-left:3px solid #e53e3e; padding-left:10px;">
+                        CRITICAL WARNING: Cross-referencing and background verification requirements active. Verify target record explicitly in order to eliminate false arrests.
+                    </p>
+                    <div class="form-group">
+                        <label>Incident Reference Docket</label>
+                        <input type="text" id="pol_case_id" placeholder="CR-2026-XXXX">
+                    </div>
+                    <div class="form-group">
+                        <label>Report</label>
+                        <input type="text" id="pol_title" placeholder="Arrest Record Summary">
+                    </div>
+                    <div class="form-group">
+                        <label>Document</label>
+                        <input type="file" id="pol_file">
+                    </div>
+                    <button style="background:#4a5568;" onclick="submitFiling('Police')">Submit Report</button>
+                </div>
+
+                <div id="adminForm" class="role-form" style="display:none;">
+                    <h3 style="margin-top:0; color:#805ad5;">System Administration</h3>
+                    <div class="form-group">
+                        <label>Target Docket</label>
+                        <input type="text" id="adm_case_id" placeholder="CR-2026-XXXX">
+                    </div>
+                    <div class="form-group">
+                        <label>Assessment Fine/Fee Amount ($)</label>
+                        <input type="number" id="adm_amount" step="0.01" placeholder="0.00">
+                    </div>
+                    <button style="background:#805ad5;" onclick="postFee()">Submit Transaction</button>
+                </div>
+
+            </div>
+
+            <div>
+                <h3 style="color:#4a5568; margin-top:0;">Active Cases</h3>
+                <button style="background:#4a5568; margin-bottom:15px; width:auto; padding:8px 15px;" onclick="refreshActiveCases()">Fetch Case Registry</button>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Docket</th>
+                            <th>Statute</th>
+                            <th>Class</th>
+                            <th>Timeline</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rosterTable">
+                        <tr><td colspan="4" style="text-align:center; color:#a0aec0;">If you're seeing this, try clicking Fetch Case Registry.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+</script>
+</body>
+</html>
